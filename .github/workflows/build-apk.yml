@@ -18,17 +18,17 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-
       - name: Install Android SDK
         run: |
           mkdir -p "$ANDROID_HOME/cmdline-tools"
           cd "$ANDROID_HOME/cmdline-tools"
+          rm -rf latest new-tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip -O tools.zip
-          mkdir -p latest
-          unzip -q tools.zip -d latest
-          mv latest/cmdline-tools/* latest/
+          mkdir -p new-tools
+          unzip -q tools.zip -d new-tools
+          mv new-tools/cmdline-tools latest
           yes | latest/bin/sdkmanager --licenses
-          latest/bin/sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          latest/bin/sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"35.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
