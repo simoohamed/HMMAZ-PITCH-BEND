@@ -20,30 +20,30 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Accept Android licenses
-        shell: bash
-        run: |
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
-
-      - name: Install Android packages
-        shell: bash
-        run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
 
-      - name: Build Android project
+      - name: Prepare Android project
         shell: bash
         run: |
           unzip -q HMMAZ_Pitch_Bend_Android_Project.zip -d android-project
-          cd android-project/HMMAZ_Pitch_Bend
+          find android-project -name settings.gradle -o -name settings.gradle.kts
+
+      - name: Build Android project
+        shell: bash
+        run: |
+          PROJECT_DIR=$(dirname "$(find android-project -name settings.gradle -o -name settings.gradle.kts | head -n 1)")
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "Gradle project not found"
+            exit 1
+          fi
+          cd "$PROJECT_DIR"
           gradle :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: HMMAZ-debug-apk
-          path: android-project/HMMAZ_Pitch_Bend/app/build/outputs/apk/debug/app-debug.apk
+          path: android-project/**/app/build/outputs/apk/debug/app-debug.apk
